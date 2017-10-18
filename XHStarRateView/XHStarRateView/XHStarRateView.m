@@ -98,12 +98,25 @@ typedef void(^completeBlock)(CGFloat currentScore);
     {
         UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
         imageView.frame = CGRectMake(i * self.bounds.size.width / self.numberOfStars, 0, self.bounds.size.width / self.numberOfStars, self.bounds.size.height);
+        imageView.tag = i+55;
         imageView.contentMode = UIViewContentModeScaleAspectFit;
         [view addSubview:imageView];
     }
     return view;
 }
 
+- (void)disposeSubViewFrame{
+    self.foregroundStarView.frame = self.bounds;
+    self.backgroundStarView.frame = self.bounds;
+    for (NSInteger i = 0; i< self.numberOfStars ;i++){
+        CGRect imageFrame = CGRectMake(i * self.bounds.size.width / self.numberOfStars, 0, self.bounds.size.width / self.numberOfStars, self.bounds.size.height);
+        UIImageView *imageView = [self.foregroundStarView viewWithTag:i+55];
+        UIImageView *imageView2 = [self.backgroundStarView viewWithTag:i+55];
+        imageView.frame = imageFrame;
+        imageView2.frame = imageFrame;
+    }
+    
+}
 - (void)userTapRateView:(UITapGestureRecognizer *)gesture {
     CGPoint tapPoint = [gesture locationInView:self];
     CGFloat offset = tapPoint.x;
@@ -124,6 +137,28 @@ typedef void(^completeBlock)(CGFloat currentScore);
             break;
     }
     
+}
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    [super  touchesEnded:touches withEvent:event];
+    UITouch *touch = touches.anyObject;
+    CGPoint tapPoint = [touch locationInView:self];
+    CGFloat offset = tapPoint.x;
+    CGFloat realStarScore = offset / (self.bounds.size.width / self.numberOfStars);
+    switch (_rateStyle) {
+        case WholeStar:
+        {
+            self.currentScore = ceilf(realStarScore);
+            break;
+        }
+        case HalfStar:
+            self.currentScore = roundf(realStarScore)>realStarScore ? ceilf(realStarScore):(ceilf(realStarScore)-0.5);
+            break;
+        case IncompleteStar:
+            self.currentScore = realStarScore;
+            break;
+        default:
+            break;
+    }
 }
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
     [super touchesMoved:touches withEvent:event];
@@ -148,13 +183,18 @@ typedef void(^completeBlock)(CGFloat currentScore);
     }
     
 }
-
+- (void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    [self disposeSubViewFrame];
+}
 - (void)layoutSubviews {
     [super layoutSubviews];
+   
     __weak XHStarRateView *weakSelf = self;
     CGFloat animationTimeInterval = self.isAnimation ? 0.2 : 0;
     [UIView animateWithDuration:animationTimeInterval animations:^{
         weakSelf.foregroundStarView.frame = CGRectMake(0, 0, weakSelf.bounds.size.width * weakSelf.currentScore/self.numberOfStars, weakSelf.bounds.size.height);
+        
     }];
 }
 
@@ -178,7 +218,7 @@ typedef void(^completeBlock)(CGFloat currentScore);
     if (self.complete) {
         _complete(_currentScore);
     }
-    
+    // 调用处理ui 刷新 layoutSubviews
     [self setNeedsLayout];
 }
 

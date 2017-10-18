@@ -1,0 +1,14 @@
+//
+//  XHStarRateView-PrefixHeader.pch
+//  XHStarRateView
+//
+//  Created by boosj on 2017/10/18.
+//  Copyright © 2017年 jxh. All rights reserved.
+//
+
+#ifndef XHStarRateView_PrefixHeader_pch
+#define XHStarRateView_PrefixHeader_pch
+#import "XHStarRateView.h"
+#import "SDAutoLayout.h"
+
+#endif /* XHStarRateView_PrefixHeader_pch */
