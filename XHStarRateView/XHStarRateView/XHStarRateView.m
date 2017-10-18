@@ -7,7 +7,7 @@
 //
 
 #import "XHStarRateView.h"
-
+// 按需要修改星星图片
 #define ForegroundStarImage @"b27_icon_star_yellow"
 #define BackgroundStarImage @"b27_icon_star_gray"
 
@@ -106,6 +106,29 @@ typedef void(^completeBlock)(CGFloat currentScore);
 
 - (void)userTapRateView:(UITapGestureRecognizer *)gesture {
     CGPoint tapPoint = [gesture locationInView:self];
+    CGFloat offset = tapPoint.x;
+    CGFloat realStarScore = offset / (self.bounds.size.width / self.numberOfStars);
+    switch (_rateStyle) {
+        case WholeStar:
+        {
+            self.currentScore = ceilf(realStarScore);
+            break;
+        }
+        case HalfStar:
+            self.currentScore = roundf(realStarScore)>realStarScore ? ceilf(realStarScore):(ceilf(realStarScore)-0.5);
+            break;
+        case IncompleteStar:
+            self.currentScore = realStarScore;
+            break;
+        default:
+            break;
+    }
+    
+}
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    [super touchesMoved:touches withEvent:event];
+    UITouch *touch = touches.anyObject;
+    CGPoint tapPoint = [touch locationInView:self];
     CGFloat offset = tapPoint.x;
     CGFloat realStarScore = offset / (self.bounds.size.width / self.numberOfStars);
     switch (_rateStyle) {
